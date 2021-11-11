@@ -11,7 +11,7 @@ git pull
 
 echo ">프로젝트 Build 시작"
 
-./gradlew build 
+./gradlew build
 
 cd $REPOSITORY
 

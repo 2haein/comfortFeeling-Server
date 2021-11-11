@@ -2,6 +2,7 @@ package com.codeboogie.comfortbackend.feeling.model;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,20 +30,22 @@ public class FeelingService {
         if(feeling == null) {
             throw new NullPointerException("Data Null");
         }
-        Criteria criteria = new Criteria("userId");
-        criteria.is(feeling.getUserId());
+        Criteria criteria = new Criteria("_id");
+        criteria.is(new ObjectId(feeling.getId()));
+        System.out.println("안드로이드 -> 서버로 Post 업데이트:"+ feeling.getPublishDate());
+        Query query = new Query(criteria);
 
-        Query query = new Query();
 
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        Date sDate = inputFormat.parse(feeling.getPublishDate().toString());
+        //SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        //Date sDate = inputFormat.parse(feeling.getPublishDate().toString());
 
         Update update = new Update();
         update.set("score", feeling.getScore());
-        update.set("publishDate", sDate);
+        update.set("publishDate", feeling.getPublishDate());
         update.set("text", feeling.getText());
         update.set("xcoord", feeling.getXcoord());
         update.set("ycoord", feeling.getYcoord());
+        update.set("comment", feeling.getComment());
 
         mongoTemplate.updateFirst(query, update, "feeling");
     }
@@ -145,7 +148,9 @@ public class FeelingService {
         Criteria criteria = new Criteria("userId");
         criteria.is(userId);
 
+
         Query query = new Query(criteria);
+        query.with(Sort.by(Sort.Direction.DESC, "publishDate"));
 
         return mongoTemplate.find(query, Feeling.class, "feeling" );
     }
@@ -213,8 +218,13 @@ public class FeelingService {
         return mongoTemplate.find(query, Comment.class, "comment" );
     }
     public int checkReportCmt(HashMap<String, String> data) {
-        Query query = new Query().addCriteria(Criteria.where("feeling_id").is(data.get("feeling_id"))
-                .andOperator(Criteria.where("comment_id").is(data.get("comment_id"))));
+        Query query = new Query();
+        Criteria criteria = new Criteria();
+        Criteria criteria_arr[] = new Criteria[3];
+        criteria_arr[0] = Criteria.where("feeling_id").is(data.get("feeling_id"));
+        criteria_arr[1] = Criteria.where("comment_id").is(data.get("comment_id"));
+        criteria_arr[2] = Criteria.where("userId").is(data.get("userId"));
+        query.addCriteria(criteria.andOperator(criteria_arr));
 
         return (int) mongoTemplate.count(query, "commentReport");
     }
@@ -227,7 +237,8 @@ public class FeelingService {
 
         Query query = new Query().addCriteria(Criteria.where("comment_id").is(commentReport.getComment_id()));
         int reportCount = (int) mongoTemplate.count(query, "commentReport");
-        if(reportCount>5) deleteCmt(commentReport.getComment_id());
+        System.out.println("댓글 신고수 " + reportCount);
+        if(reportCount>=5) deleteCmt(commentReport.getComment_id());
 
     }
 
