@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPOSITORY=/home/ec2-user/app
+REPOSITORY=/home/ec2-user/comfort
 PROJECT_NAME=comfort_feeling_server
 
 cd $REPOSITORY/$PROJECT_NAME/
