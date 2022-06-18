@@ -5,4 +5,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'comfortFeeling_backend'
+rootProject.name = 'comfortFeeling-Server'
