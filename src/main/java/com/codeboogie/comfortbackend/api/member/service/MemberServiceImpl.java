@@ -24,7 +24,7 @@ public class MemberServiceImpl implements MemberService{
 
 
             Member member = memberRepository.findByUserId(memberDTO.getUserId());
-            System.out.println(member);
+            System.out.println("11"+member);
 
             if (member == null) {
                 memberRepository.save(comfortMember);
