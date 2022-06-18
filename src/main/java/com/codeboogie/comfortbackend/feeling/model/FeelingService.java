@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -126,8 +127,8 @@ public class FeelingService {
     public List<Feeling> loadData(String date) throws ParseException {
         Criteria criteria = new Criteria("publishDate");
 
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        String startDate = date + "T00:00:00.000Z";
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String startDate = date;
         Date sDate = inputFormat.parse(startDate);
         // 시간대가 UTC로 되기 때문에 9시간 추가해야 한국 시간대 맞춰짐
         Calendar cal = Calendar.getInstance();
@@ -137,10 +138,13 @@ public class FeelingService {
         cal.add(Calendar.DATE, 1);
         Date eDate = cal.getTime();
 
+//        System.out.println(sDate+": 1111 :"+ eDate);
+
         criteria.gte(sDate).lte(eDate);
 
         Query query = new Query(criteria);
-
+        System.out.println("111111 :"+ query);
+        System.out.println(mongoTemplate.find(query, Feeling.class, "feeling"));
         return mongoTemplate.find(query, Feeling.class, "feeling");
     }
 
